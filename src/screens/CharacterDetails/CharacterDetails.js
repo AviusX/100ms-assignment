@@ -62,7 +62,7 @@ const CharacterDetails = () => {
                         </div>
 
                         {/* Status */}
-                        <div className="flex-1 flex lg:justify-end items-center w-full lg:w-auto mt-4">
+                        <div className="flex-1 flex justify-end items-center w-full lg:w-auto mt-4">
                             <p className={`text-lg lg:text-2xl px-4 py-2 lg:py-3 ${statusColor} font-semibold bg-bg rounded-full`}>
                                 {characterData[0].status}
                             </p>
@@ -72,7 +72,7 @@ const CharacterDetails = () => {
                     {/* Details */}
                     <div className="bg-secondary w-full lg:w-8/12 lg:rounded-xl self-center py-3 px-4 my-4">
                         {/* Born and played by */}
-                        <div className="flex justify-around my-3">
+                        <div className="flex flex-wrap justify-around my-3">
                             <div className="flex flex-col space-y-1 text-center">
                                 <h3 className="text-xl text-primary uppercase tracking-widest font-semibold">
                                     Born
@@ -120,7 +120,7 @@ const CharacterDetails = () => {
                                 </h3>
                                 <div className="flex flex-col space-y-3">
                                     {quotesData.map(quote => (
-                                        <p className="text-white even:text-yellow-100 italic">
+                                        <p className="text-white even:text-yellow-100 italic" key={quote.quote_id}>
                                             <span className="text-primary font-bold text-xl mx-1">
                                                 "
                                             </span>
