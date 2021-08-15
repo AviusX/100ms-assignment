@@ -1,6 +1,7 @@
 import Header from '../../components/Header/Header';
 import Character from '../../components/Character/Character';
 import SearchBar from '../../components/SearchBar/SearchBar';
+import CategoryFilter from '../../components/CategoryFilter/CategoryFilter';
 import CharacterList from '../../components/CharacterList/CharacterList';
 import Button from '../../components/Button/Button';
 import PageSection from '../../components/PageSection/PageSection';
@@ -9,22 +10,25 @@ import { useState } from 'react';
 import { useQuery } from 'react-query';
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/solid';
 
+// The base URL for API requests
+const BASE_URL = "https://breakingbadapi.com/api";
 // The number of characters shown per page.
 const LIMIT = 10;
 
 const Characters = () => {
     const [page, setPage] = useState(1);
     const [searchString, setSearchString] = useState("");
+    const [category, setCategory] = useState("");
 
     // The query that handles the fetching, caching, etc of the data from the API
     const {
         status: allCharactersStatus, // Contains either "error", "loading" or "success"
         data: allCharactersData // Contains the data fetched from the API, if request is successful
     } = useQuery(
-        // The name of the query and the variables that the query depends on (page here)
-        ['allCharacters', page],
+        // The name of the query and the variables that the query depends on (page & category here)
+        ['allCharacters', page, category],
         // The function that handles the actual fetching of data from the API
-        () => getAllCharacters(page),
+        () => getAllCharacters(page, category),
         // Show the data of previous page until the data of the new page is fetched
         { keepPreviousData: true }
     )
@@ -34,7 +38,7 @@ const Characters = () => {
         data: searchedCharacters
     } = useQuery(
         ['searchedPeople', searchString],
-        () => getSearchedCharacters(searchString, page),
+        () => getSearchedCharacters(searchString),
         {
             keepPreviousData: true,
             enabled: searchString.length > 0 // Only execute this query if searchString is non-empty
@@ -43,12 +47,20 @@ const Characters = () => {
 
     let totalPages;
 
-    // If searchString is empty and allCharacters have been fetched, set totalPages to
-    // the count of allCharacters (62). Otherwise, if searchString is non-empty and searchedCharacters 
-    // have been fetched, set totalPages to 0.
-    if (searchString.length === 0 && allCharactersStatus === "success") {
+    if (searchString.length === 0 && allCharactersStatus === "success" && category === "") {
+        // If searchString is empty, and category is "all", set totalPages according to the no.
+        // of all characters (62)
         totalPages = calculatePages(62);
+    } else if (searchString.length === 0 && allCharactersStatus === "success" && category === "Breaking+Bad") {
+        // If searchString is empty and category is Breaking Bad, set totalPages according to the
+        // total no. of breaking bad characters (57)
+        totalPages = calculatePages(57);
+    } else if (searchString.length === 0 && allCharactersStatus === "success" && category === "Better+Call+Saul") {
+        // If searchString is empty and category is Better Call Saul, set totalPages according to
+        // the no. of BCS characters (12)
+        totalPages = calculatePages(12);
     } else if (searchString.length !== 0 && searchedCharactersStatus === "success") {
+        // If searchString is non-empty, set totalPages to 0, thus disabling pagination.
         totalPages = 0;
     }
 
@@ -74,12 +86,21 @@ const Characters = () => {
         }
     }
 
+    const onCategoryChange = e => {
+        setCategory(e.currentTarget.value);
+    }
+
     return (
         <PageSection>
             <Header />
 
-            <div className="flex justify-center mt-5">
+            <div className="flex flex-wrap justify-center mt-5">
                 <SearchBar onChange={onSearchChange} />
+
+                {/* Only show the category filter if searchString is empty */}
+                {searchString.length === 0 && (
+                    <CategoryFilter onChange={onCategoryChange} />
+                )}
             </div>
 
             {/* If searchString is empty and allCharacters have been fetched, show them */}
@@ -149,14 +170,14 @@ const Characters = () => {
  * @param {*} page
  * @return {*} 
  */
-const getAllCharacters = async (page) => {
+const getAllCharacters = async (page, category) => {
     // Multiply the LIMIT with the page number - 1 to get the offset
-    const data = await fetch(`https://breakingbadapi.com/api/characters?limit=${LIMIT}&offset=${LIMIT * (page - 1)}`);
+    const data = await fetch(`${BASE_URL}/characters?limit=${LIMIT}&offset=${LIMIT * (page - 1)}&category=${category}`);
     return data.json();
 }
 
 const getSearchedCharacters = async (searchString) => {
-    const data = await fetch(`https://breakingbadapi.com/api/characters?name=${searchString}`);
+    const data = await fetch(`${BASE_URL}/characters?name=${searchString}`);
     return data.json();
 }
 
