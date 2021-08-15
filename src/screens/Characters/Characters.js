@@ -3,6 +3,7 @@ import Character from '../../components/Character/Character';
 import SearchBar from '../../components/SearchBar/SearchBar';
 import CharacterList from '../../components/CharacterList/CharacterList';
 import Button from '../../components/Button/Button';
+import PageSection from '../../components/PageSection/PageSection';
 
 import { useState } from 'react';
 import { useQuery } from 'react-query';
@@ -32,11 +33,11 @@ const Characters = () => {
         status: searchedCharactersStatus,
         data: searchedCharacters
     } = useQuery(
-        ['searchedPeople', searchString, page],
+        ['searchedPeople', searchString],
         () => getSearchedCharacters(searchString, page),
         {
             keepPreviousData: true,
-            enabled: searchString.length > 0
+            enabled: searchString.length > 0 // Only execute this query if searchString is non-empty
         }
     );
 
@@ -74,7 +75,7 @@ const Characters = () => {
     }
 
     return (
-        <section className="w-full h-full flex flex-col">
+        <PageSection>
             <Header />
 
             <div className="flex justify-center mt-5">
@@ -84,7 +85,7 @@ const Characters = () => {
             {/* If searchString is empty and allCharacters have been fetched, show them */}
             {allCharactersStatus === 'success' && searchString.length === 0 && (
                 <CharacterList>
-                    {allCharactersData.map(character => (
+                    {allCharactersData.map((character, index) => (
                         <Character
                             key={character.char_id}
                             image={character.img}
@@ -92,6 +93,7 @@ const Characters = () => {
                             occupation={character.occupation.join(', ')}
                             birthday={character.birthday}
                             status={character.status}
+                            animationDelay={index * 0.1}
                         />
                     ))}
                 </CharacterList>
@@ -100,7 +102,7 @@ const Characters = () => {
             {/* If searchString is non-empty and searchedCharacters have been fetched, show them */}
             {searchedCharactersStatus === 'success' && searchString.length > 0 && (
                 <CharacterList>
-                    {searchedCharacters.map(character => (
+                    {searchedCharacters.map((character, index) => (
                         <Character
                             key={character.char_id}
                             image={character.img}
@@ -108,6 +110,7 @@ const Characters = () => {
                             occupation={character.occupation.join(', ')}
                             birthday={character.birthday}
                             status={character.status}
+                            animationDelay={index * 0.1}
                         />
                     ))}
                 </CharacterList>
@@ -135,7 +138,7 @@ const Characters = () => {
                     </Button>
                 </div>
             )}
-        </section>
+        </PageSection>
     );
 }
 

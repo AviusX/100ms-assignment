@@ -1,4 +1,11 @@
+import { cardVariants } from '../../variants';
+
+import { useHistory } from 'react-router-dom';
+import { motion } from 'framer-motion';
+
 const Character = props => {
+    const history = useHistory();
+
     let statusColor;
     if (props.status.toLowerCase().includes("dead") || props.status.toLowerCase().includes("deceased")) {
         statusColor = "text-spoiler-red";
@@ -6,10 +13,22 @@ const Character = props => {
         statusColor = "text-primary";
     }
 
+    const clickHandler = () => {
+        history.push(props.name);
+    }
+
     return (
-        <div className="flex flex-col lg:flex-row lg:items-center w-11/12 lg:w-8/12 rounded-2xl bg-secondary my-2 
-        px-4 lg:px-6 py-5 lg:py-7 border border-transparent hover:border-primary transition duration-200 ease-in
-        cursor-pointer">
+        <motion.div
+            className="flex flex-col lg:flex-row lg:items-center w-11/12 lg:w-8/12 rounded-2xl bg-secondary my-2
+        px-4 lg:px-6 py-5 lg:py-7
+        cursor-pointer"
+            onClick={clickHandler}
+            variants={cardVariants}
+            initial="hidden"
+            animate="visible"
+            whileHover="hover"
+            transition={{ type: "tween", ease: "easeInOut", duration: 0.6, delay: props.animationDelay }}
+        >
             {/* Image */}
             <div className="hidden lg:block lg:h-20 lg:w-20 rounded-full mr-5 overflow-hidden">
                 <img src={props.image} alt="Character" />
@@ -34,7 +53,7 @@ const Character = props => {
                     {props.status}
                 </p>
             </div>
-        </div>
+        </motion.div>
     );
 }
 
